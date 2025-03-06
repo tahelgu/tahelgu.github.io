@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X&O - Neon Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.4.0/confetti.browser.min.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            background-color: #080808;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            text-shadow: 0 0 10px cyan;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        input {
+            background-color: transparent;
+            border: 2px solid cyan;
+            width: 45%;
+            padding: 10px;
+            font-size: 1em;
+            text-align: center;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: 0 0 10px cyan;
+            border-radius: 5px;
+        }
+
+        input:focus {
+            box-shadow: 0 0 20px cyan;
+            transform: scale(1.1);
+        }
+
+        .scoreboard {
+            font-size: 1.3em;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .board {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+            max-width: 360px;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            background-color: rgba(0, 255, 255, 0.1);
+            border: 2px solid cyan;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 10px cyan;
+        }
+
+        .cell:hover {
+            background-color: rgba(0, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            color: white;
+            cursor: pointer;
+            background: linear-gradient(45deg, rgb(2, 85, 85), rgb(57, 57, 85));
+            box-shadow: 0 0 15px cyan;
+            transition: 0.3s;
+            margin: 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px cyan;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>X-VS-O - Neon Edition</h1>
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="player1" placeholder="Player 1">
+            <input type="text" id="player2" placeholder="Player 2">
+        </div>
+        <p class="scoreboard" id="scoreboard">
+            <span id="player1Name">Player 1 (X)</span> Wins: <span id="player1Wins">0</span> |
+            <span id="player2Name">Player 2 (O)</span> Wins: <span id="player2Wins">0</span>
+        </p>
+        <button id="startGame">Start Game</button>
+        <div class="buttons-container">
+            <button id="updateNames" style="display: none;">Update Names</button>
+            <button id="reset" style="display: none;">Reset Game</button>
+        </div>
+        <h2 id="turnInfo"></h2>
+        <div class="board" id="board"></div>
+    </div>
+
+    <script>
+        const board = document.getElementById("board");
+        const resetButton = document.getElementById("reset");
+        const startButton = document.getElementById("startGame");
+        const updateNamesButton = document.getElementById("updateNames");
+        const player1Input = document.getElementById("player1");
+        const player2Input = document.getElementById("player2");
+        const turnInfo = document.getElementById("turnInfo");
+        const scoreboard = document.getElementById("scoreboard");
+        const player1NameDisplay = document.getElementById("player1Name");
+        const player2NameDisplay = document.getElementById("player2Name");
+        const player1WinsDisplay = document.getElementById("player1Wins");
+        const player2WinsDisplay = document.getElementById("player2Wins");
+
+        let players = {};
+        let currentPlayer;
+        let gameBoard;
+        let gameOver = false;
+        let player1Wins = 0;
+        let player2Wins = 0;
+
+        function createBoard() {
+            board.innerHTML = "";
+            gameBoard = Array(9).fill("");
+            gameOver = false;
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.dataset.index = i;
+                cell.addEventListener("click", () => handleClick(i, cell));
+                board.appendChild(cell);
+            }
+            updateTurnInfo();
+        }
+
+        function handleClick(index, cell) {
+            if (!cell || gameOver || gameBoard[index]) return;
+            gameBoard[index] = currentPlayer;
+            cell.textContent = currentPlayer;
+
+            if (checkWin()) {
+                gameOver = true;
+                turnInfo.textContent = `${players[currentPlayer]} Wins! 🎉`;
+                if (currentPlayer === "X") { player1Wins++; player1WinsDisplay.textContent = player1Wins; }
+                else { player2Wins++; player2WinsDisplay.textContent = player2Wins; }
+                scoreboard.style.display = "block";
+            } else if (gameBoard.every(cell => cell)) {
+                gameOver = true;
+                turnInfo.textContent = "It's a Draw! 🔥";
+            } else {
+                currentPlayer = currentPlayer === "X" ? "O" : "X";
+                updateTurnInfo();
+            }
+        }
+
+        function checkWin() {
+            const winPatterns = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+            return winPatterns.some(pattern => {
+                const [a, b, c] = pattern;
+                return gameBoard[a] && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c];
+            });
+        }
+
+        function startGame() {
+            if (!player1Input.value || !player2Input.value) return alert("Please enter both player names!");
+            player1Wins = 0; player2Wins = 0;
+            player1WinsDisplay.textContent = player1Wins; player2WinsDisplay.textContent = player2Wins;
+            players.X = player1Input.value; players.O = player2Input.value;
+            player1NameDisplay.textContent = players.X; player2NameDisplay.textContent = players.O;
+            currentPlayer = Math.random() < 0.5 ? "X" : "O";
+            board.style.display = "grid"; resetButton.style.display = "block"; updateNamesButton.style.display = "block"; startButton.style.display = "none";
+            scoreboard.style.display = "block"; createBoard(); updateTurnInfo();
+        }
+
+        function resetBoard() {
+            createBoard();
+            turnInfo.textContent = `Turn: ${players[currentPlayer]} (${currentPlayer})`;
+        }
+
+        function updateTurnInfo() {
+            turnInfo.textContent = `Turn: ${players[currentPlayer]} (${currentPlayer})`;
+        }
+
+        updateNamesButton.addEventListener("click", startGame);
+        startButton.addEventListener("click", startGame);
+        resetButton.addEventListener("click", resetBoard);
+    </script>
+</body>
+
+</html>

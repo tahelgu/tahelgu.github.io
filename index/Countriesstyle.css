@@ -1,0 +1,86 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Rubik Moonrocks", serif;
+    color: #2a2727;
+    font-size: 40px;
+    font-weight: 100;
+    font-style: inherit;
+    text-align: center;
+    background-color: #f4f4f4;
+    direction: rtl;
+    background-image: url("../index/טפט-עננים-כחולים-על-רקע-לקבן.jpg");
+    background-size: cover;
+}
+
+
+.language-selector {
+    margin: 20px;
+}
+
+[lang="he"] {
+    direction: rtl;
+    text-align: center;
+    font-family: "Rubik Moonrocks", serif;
+}
+
+
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input {
+    width: 60%;
+    padding: 30px;
+    margin-top: 30px;
+    border: none;
+    border-radius: 30px;
+    background-color: #abdbe3;
+    box-shadow: 8px 8px 15px #2d2b2b, -8px -8px 20px #ffffff;
+    text-align: center;
+    font-family: "Rubik Moonrocks", serif;
+    font-size: 30px;
+
+}
+
+button {
+    padding: 20px 40px;
+    background-color: #abdbe3;
+    color: #0f0f0f;
+    font-family: "Rubik Moonrocks", serif;
+    border: none;
+    cursor: pointer;
+    border-radius: 30px;
+    box-shadow: 8px 8px 8px #bebebe, -8px -8px 15px #ffffff;
+}
+
+#searchBtn {
+    font-size: 30px;
+}
+
+button:hover {
+    box-shadow:
+        inset 8px 8px 15px #bebebe,
+        inset -8px -8px 15px #ffffff;
+
+}
+
+
+#result {
+    align-items: center;
+    margin-top: 40px;
+
+
+}
+
+.flag {
+    width: 200px;
+}

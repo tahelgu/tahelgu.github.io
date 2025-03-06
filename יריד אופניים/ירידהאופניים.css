@@ -1,0 +1,142 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Heebo", serif;
+    background-color: #767677;
+}
+
+h1 {
+    background: #2a4c61 0% 0% no-repeat padding-box;
+    color: white;
+    font-weight: 1000;
+    text-align: center;
+    font-size: 40px;
+}
+
+p,
+lable {
+
+    color: #fff;
+}
+
+.container {
+    display: flex;
+
+}
+
+.container-img {
+    width: 90vw;
+}
+
+img {
+    width: 100%;
+    margin-top: 10em;
+    margin-left: 7%;
+    margin-right: 0;
+}
+
+.container-form {
+    width: 50%;
+    direction: rtl;
+    padding: 0 5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10em;
+}
+
+.form-control {
+    display: flex;
+    flex-direction: column;
+
+}
+
+label {
+    font: normal normal bold 16px/24px Heebo;
+    background: #2a4c61 0% 0% no-repeat padding-box;
+    color: white;
+}
+
+input[type="text"] {
+    height: 50px;
+    background: #E5EEFF;
+    border: 0;
+    border-bottom: 5px solid #2a4c61;
+    width: 418px;
+    margin-left: 0;
+    margin-right: 0;
+
+}
+
+input[type="email"] {
+    height: 50px;
+    background: #E5EEFF;
+    border: 0;
+    border-bottom: 5px solid #2a4c61;
+    width: 418px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+input[type="submit"] {
+    width: 50%;
+    height: 50px;
+    letter-spacing: 0.33px;
+    background: #2a4c61 0% 0% no-repeat padding-box;
+    color: white;
+    border: none;
+    font: normal normal bold 16px/24px Heebo;
+    margin: 30px;
+    width: 166px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+@media (max-width: 700px) {
+
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .container-img,
+    img {
+        width: 100%;
+        margin: 0;
+    }
+
+    .container-form {
+        width: 100%;
+        padding: 0 1rem;
+        box-sizing: border-box;
+        margin: 1rem auto;
+        text-align: right;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+        width: 100%;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .form-control {
+        flex: 1;
+    }
+
+    input[type="submit"] {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

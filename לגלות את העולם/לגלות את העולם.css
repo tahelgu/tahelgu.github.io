@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    font-family: Assistant, Arial, sans-serif;
+    background-color: #E5EEFF;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 200px);
+    gap: 5px;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 10px;
+}
+
+.container div {
+    overflow: hidden;
+
+}
+
+.container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.intro {
+    grid-column: 1 / span 2;
+    grid-row: 1 / span 2;
+    background-color: #1d1c7e;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.form-section {
+    grid-column: 3 / span 2;
+    grid-row: 4 / span 3;
+    background-color: #a31278;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+h1 {
+    font: normal normal bold 40px/30px Assistant;
+    color: #0EE1DA;
+    text-align: center;
+}
+
+p {
+    text-align: center;
+}
+
+.form-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-section form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-section label {
+    font: normal normal bold 28px/33px Assistant;
+    color: #0EE1DA;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.form-section input,
+.form-section textarea {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: none;
+}
+
+input[type="text"],
+input[type="email"] {
+    border-bottom: 5px solid #0EE1DA;
+}
+
+input[type="massage"] {
+    border-bottom: 5px solid #0EE1DA;
+    height: 172px;
+}
+
+.form-section button {
+    font: normal normal bold 28px/33px Assistant;
+    font-size: 1rem;
+    padding: 10px;
+    color: #011560;
+    background-color: #0EE1DA;
+    border: none;
+    cursor: pointer;
+}
+
+.form-section button:hover {
+    background-color: #009aa1;
+}
+
+@media (max-width: 400px) {
+    .container {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        gap: 10px;
+    }
+
+    .intro {
+        grid-column: 1 / span 2;
+        grid-row: 1/ span 2;
+        height: 200px;
+        order: 1;
+    }
+
+    .container div:nth-child(-n+9):not(.intro) {
+        order: 2;
+    }
+
+    .form-section {
+        grid-column: 1 / span 2;
+        grid-row: auto;
+        order: 3;
+    }
+
+    .container div:nth-child(n+10):not(.form-section) {
+        order: 4;
+    }
+
+    .container img {
+        height: auto;
+    }
+}

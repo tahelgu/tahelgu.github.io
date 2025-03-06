@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="eמ">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The memory game - animals</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(120deg, #ff9a9e, #fad0c4);
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 3em;
+            text-align: center;
+            text-shadow: 3px 3px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            max-width: 90%;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        #startBtn {
+            background: #ff3e7f;
+            border: none;
+            padding: 9px 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(255, 87, 34, 0.6);
+        }
+
+        #startBtn:hover {
+            background: #d81b60;
+            box-shadow: 0 0 20px rgba(255, 87, 34, 0.9);
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 10px;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #ff4081, #ff80ab);
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.4s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255, 64, 129, 0.7);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            background: #4caf50;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.9);
+        }
+
+        .card .front,
+        .card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+        }
+
+        .card .front {
+            background: linear-gradient(135deg, #ff4081, #ff80ab);
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .card .back {
+            background: linear-gradient(135deg, #ffeb3b, #fbc02d);
+            color: black;
+            font-size: 40px;
+            transform: rotateY(180deg);
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffeb3b;
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.8);
+        }
+
+        @media (max-width:500px) {
+            .game-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+
+            .card {
+                width: 65px;
+                height: 70px;
+                margin-top: 10px;
+                font-size: 24px;
+
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Can You Match All The Animals?</h1>
+        <button id="startBtn">Start A New Game</button>
+        <div id="message"></div>
+        <hr>
+        <div id="gameBoard" class="game-board"></div>
+    </div>
+
+    <script>
+        const animals = ['🦁', '🐯', '🐻', '🐰', '🐶', '🐱', '🐔', '🐷'];
+        const gameBoard = document.getElementById('gameBoard');
+        const startBtn = document.getElementById('startBtn');
+        const message = document.getElementById('message');
+
+        let cards = [];
+        let flippedCards = [];
+        let matchedCards = 0;
+        let totalPairs = 8;
+
+        startBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            gameBoard.innerHTML = '';
+            message.textContent = '';
+            matchedCards = 0;
+            flippedCards = [];
+
+            cards = createCards();
+            shuffle(cards);
+            renderCards();
+        }
+
+        function createCards() {
+            let cardArray = [];
+            animals.forEach(animal => {
+                cardArray.push(animal, animal);
+            });
+            return cardArray;
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function renderCards() {
+            cards.forEach((animal, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.index = index;
+
+                const front = document.createElement('div');
+                front.classList.add('front');
+                front.textContent = '🌟';
+
+                const back = document.createElement('div');
+                back.classList.add('back');
+                back.textContent = animal;
+
+                card.appendChild(front);
+                card.appendChild(back);
+
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (flippedCards.length < 2 && !this.classList.contains('flipped') && !this.classList.contains('matched')) {
+                this.classList.add('flipped');
+                flippedCards.push(this);
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [firstCard, secondCard] = flippedCards;
+            if (firstCard.innerHTML === secondCard.innerHTML) {
+                firstCard.classList.add('matched');
+                secondCard.classList.add('matched');
+                matchedCards++;
+
+                if (matchedCards === totalPairs) {
+                    message.textContent = "🏆 What a victory! 🏆";
+                }
+            } else {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+            }
+            flippedCards = [];
+        }
+    </script>
+</body>
+
+</html>

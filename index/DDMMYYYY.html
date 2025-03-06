@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px cyan;
+        }
+
+        .month-header {
+            background: cyan;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 5%;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .calendar-container,
+        .event-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px cyan;
+            width: 100%;
+            max-width: 500px;
+            margin: 10px;
+        }
+
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            padding: 15px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .day:hover,
+        .day.has-event {
+            background: cyan;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .day.selected {
+            color: #fff;
+        }
+
+        .event-form input,
+        .event-form button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .event-form input {
+            background: #fff;
+            border-radius: 5%;
+            color: #000;
+        }
+
+        .event-form button {
+            background: cyan;
+            color: black;
+            width: 25%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .event-form button:hover {
+            background: #00e5ff;
+            transform: scale(1.05);
+        }
+
+        .event-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .event {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .event:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .month-header {
+                font-size: 1em;
+            }
+
+            .day {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+
+            .event-form input,
+            .event-form button {
+                padding: 6px;
+            }
+
+            .event-list {
+                max-height: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Calendar</h1>
+
+    <div class="container">
+        <div class="calendar-container">
+            <div class="month-header">
+                <button onclick="prevMonth()">◀</button>
+                <span id="monthYear"></span>
+                <button onclick="nextMonth()">▶</button>
+            </div>
+            <input type="date" id="searchDate">
+            <button onclick="searchDate()">Search</button>
+            <div class="days" id="calendar"></div>
+        </div>
+
+        <div class="event-form" id="eventForm">
+            <h3 id="selectedDateTitle">Add Event</h3>
+            <input type="text" id="eventTitle" placeholder="Event Title">
+            <button onclick="addEvent()">Save Event</button>
+            <div class="event-list" id="eventList"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let selectedDate;
+        let events = {};
+
+        function renderCalendar() {
+            const monthYear = document.getElementById("monthYear");
+            const calendar = document.getElementById("calendar");
+            calendar.innerHTML = "";
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+
+            monthYear.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            for (let i = 0; i < firstDay; i++) {
+                let emptyCell = document.createElement("div");
+                calendar.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                let dayCell = document.createElement("div");
+                dayCell.textContent = day;
+                dayCell.classList.add("day");
+
+                const eventKey = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${day}`;
+                if (events[eventKey] && events[eventKey].length > 0) {
+                    dayCell.classList.add("has-event");
+                }
+
+                dayCell.onclick = () => openEventForm(day);
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        function openEventForm(day) {
+            selectedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${day}`;
+            document.getElementById("selectedDateTitle").textContent = `Events on ${selectedDate}`;
+            document.getElementById("eventForm").style.display = "block";
+            renderEvents();
+        }
+
+        function addEvent() {
+            const eventTitle = document.getElementById("eventTitle").value.trim();
+            if (!eventTitle) return alert("Please enter an event title.");
+
+            if (!events[selectedDate]) events[selectedDate] = [];
+            events[selectedDate].push({ title: eventTitle });
+
+            document.getElementById("eventTitle").value = "";
+            renderEvents();
+            renderCalendar();
+        }
+
+        function renderEvents() {
+            const eventList = document.getElementById("eventList");
+            eventList.innerHTML = "";
+
+            if (events[selectedDate]) {
+                events[selectedDate].forEach((event, index) => {
+                    let eventDiv = document.createElement("div");
+                    eventDiv.classList.add("event");
+                    eventDiv.textContent = event.title;
+
+                    let editEventBtn = document.createElement("button");
+                    editEventBtn.textContent = "Edit";
+                    editEventBtn.classList.add("edit-btn");
+                    editEventBtn.onclick = () => editEvent(index);
+                    eventDiv.appendChild(editEventBtn);
+
+                    let deleteEventBtn = document.createElement("button");
+                    deleteEventBtn.textContent = "Delete";
+                    deleteEventBtn.classList.add("delete-btn");
+                    deleteEventBtn.onclick = () => deleteEvent(index);
+                    eventDiv.appendChild(deleteEventBtn);
+
+                    eventList.appendChild(eventDiv);
+                });
+            }
+        }
+
+        function editEvent(index) {
+            const newTitle = prompt("Edit event:", events[selectedDate][index].title);
+            if (newTitle && newTitle !== events[selectedDate][index].title) {
+                events[selectedDate][index].title = newTitle;
+                renderEvents();
+            }
+        }
+
+        function deleteEvent(index) {
+            if (confirm("Are you sure you want to delete this event?")) {
+                events[selectedDate].splice(index, 1);
+                if (events[selectedDate].length === 0) {
+                    delete events[selectedDate];
+                }
+                renderEvents();
+                renderCalendar();
+            }
+        }
+
+        renderCalendar();
+
+    </script>
+</body>
+
+</html>

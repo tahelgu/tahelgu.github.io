@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game - Ultimate Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            text-align: center;
+            background: linear-gradient(120deg, #000428, #004e92);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px cyan;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px yellow;
+            display: none;
+        }
+
+        canvas {
+            display: none;
+            border: 3px solid cyan;
+            box-shadow: 0 0 20px cyan;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .game-over {
+            font-size: 2em;
+            color: red;
+            text-shadow: 0 0 10px red;
+            display: none;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            color: white;
+            background: linear-gradient(45deg, #ff0000, #ff7300);
+            box-shadow: 0 0 15px red;
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px red;
+        }
+
+        @keyframes glowEffect {
+            0% {
+                box-shadow: 0 0 5px cyan;
+            }
+
+            50% {
+                box-shadow: 0 0 20px cyan;
+            }
+
+            100% {
+                box-shadow: 0 0 5px cyan;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🐍 Snake Game - Ultimate Edition 🕹️</h1>
+    <p class="score" id="scoreDisplay">Score: <span id="score">0</span> | High Score: <span id="highScore">0</span></p>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <p class="game-over" id="gameOver">💀 GAME OVER 💀</p>
+    <button id="startButton" onclick="startGame()">Start Game</button>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scoreDisplay = document.getElementById("scoreDisplay");
+        const scoreText = document.getElementById("score");
+        const highScoreText = document.getElementById("highScore");
+        const gameOverText = document.getElementById("gameOver");
+        const startButton = document.getElementById("startButton");
+        const eatSound = document.getElementById("eatSound");
+        const gameOverSound = document.getElementById("gameOverSound");
+
+        const boxSize = 20;
+        let snake, direction, food, score, highScore, gameRunning, speed;
+
+        function startGame() {
+            startButton.style.display = "none";
+            scoreDisplay.style.display = "block";
+            canvas.style.display = "block";
+            gameOverText.style.display = "none";
+
+            snake = [{ x: 200, y: 200 }];
+            direction = "RIGHT";
+            food = generateFood();
+            score = 0;
+            highScore = localStorage.getItem("highScore") || 0;
+            gameRunning = true;
+
+            scoreText.textContent = score;
+            highScoreText.textContent = highScore;
+
+            document.addEventListener("keydown", changeDirection);
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            setTimeout(() => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawSnake();
+                drawFood();
+                moveSnake();
+                checkCollision();
+                gameLoop();
+            }, speed);
+        }
+
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                ctx.fillStyle = index === 0 ? "lime" : "cyan";
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = "lime";
+                ctx.fillRect(segment.x, segment.y, boxSize, boxSize);
+                ctx.strokeStyle = "black";
+                ctx.strokeRect(segment.x, segment.y, boxSize, boxSize);
+            });
+        }
+
+        function drawFood() {
+            ctx.fillStyle = "red";
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = "red";
+            ctx.fillRect(food.x, food.y, boxSize, boxSize);
+        }
+
+        function moveSnake() {
+            let head = { ...snake[0] };
+
+            if (direction === "UP") head.y -= boxSize;
+            if (direction === "DOWN") head.y += boxSize;
+            if (direction === "LEFT") head.x -= boxSize;
+            if (direction === "RIGHT") head.x += boxSize;
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreText.textContent = score;
+                food = generateFood();
+
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem("highScore", highScore);
+                    highScoreText.textContent = highScore;
+                }
+            } else {
+                snake.pop();
+            }
+        }
+
+        function generateFood() {
+            return {
+                x: Math.floor(Math.random() * (canvas.width / boxSize)) * boxSize,
+                y: Math.floor(Math.random() * (canvas.height / boxSize)) * boxSize
+            };
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+
+            if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
+                endGame();
+            }
+
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    endGame();
+                }
+            }
+        }
+
+        function changeDirection(event) {
+            const key = event.key;
+            if ((key === "ArrowUp") && direction !== "DOWN") direction = "UP";
+            if ((key === "ArrowDown") && direction !== "UP") direction = "DOWN";
+            if ((key === "ArrowLeft") && direction !== "RIGHT") direction = "LEFT";
+            if ((key === "ArrowRight") && direction !== "LEFT") direction = "RIGHT";
+        }
+
+        function endGame() {
+            gameRunning = false;
+            gameOverText.style.display = "block";
+            setTimeout(() => { startButton.style.display = "block"; canvas.style.display = "none"; }, 2000);
+        }
+    </script>
+
+</body>
+
+</html>
